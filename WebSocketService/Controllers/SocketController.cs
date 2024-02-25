@@ -1,3 +1,4 @@
+using System.Net.WebSockets;
 using Microsoft.AspNetCore.Mvc;
 using WebSocketService.Interfaces;
 
@@ -18,5 +19,36 @@ public class SocketController : ControllerBase
 	{
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		_socketServerFactory = socketServerFactory ?? throw new ArgumentNullException(nameof(socketServerFactory));
+	}
+
+	[HttpPost]
+	public async Task<IActionResult> ConnectionSocket()
+	{
+		var context = ControllerContext.HttpContext;
+		WebSocket webSocket = context.WebSockets.IsWebSocketRequest ?
+		 await context.WebSockets.AcceptWebSocketAsync()
+		 : null;
+
+		if (webSocket != null)
+		{
+			var socketServer = _socketServerFactory.CreateService(webSocket);
+			try
+			{
+				await socketServer.KeepReceiving();
+			}
+			catch (Exception e)
+			{
+				_logger.LogError("{message}", e.Message);
+
+				HttpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+				await HttpContext.Response.WriteAsync("message: internal server error");
+			}
+			finally
+			{
+				await socketServer.Close();
+			}
+		}
+
+		return NoContent();
 	}
 }
