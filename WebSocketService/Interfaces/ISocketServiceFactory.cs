@@ -2,8 +2,8 @@
 
 namespace WebSocketService.Interfaces;
 
-public interface ISocketServiceFactory
+public interface ISocketServerFactory
 {
-	IWebSocketService CreateService(WebSocket webSocket);
+	IWebSocketServer CreateService(WebSocket webSocket);
 }
 

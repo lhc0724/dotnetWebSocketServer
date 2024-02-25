@@ -2,7 +2,7 @@
 
 namespace WebSocketService.Interfaces;
 
-public interface IWebSocketService
+public interface IWebSocketServer
 {
 	Task<WebSocketCloseStatus?> KeepReceiving();
 
